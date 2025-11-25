@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AutoGear Pro | Responsive ERP</title>
+    <title>AutoGear Pro | Final Mobile ERP</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
@@ -11,9 +11,8 @@
     
     <style>
         /* --- THEME --- */
-        body { background-color: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; overscroll-behavior: none; }
         .glass { background: rgba(30, 41, 59, 0.9); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .glass-panel { background: linear-gradient(145deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.95)); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; }
         .animate-fade-in { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
@@ -34,7 +33,7 @@
             clip-path: polygon(0 40%, 100% 0, 100% 100%, 0% 100%);
             position: absolute; bottom: 0; left: 0; z-index: 0;
         }
-        .inv-content { position: relative; z-index: 10; padding: 20px; } /* Less padding on mobile */
+        .inv-content { position: relative; z-index: 10; padding: 20px; }
         @media(min-width: 768px) { .inv-content { padding: 40px; } }
 
         .inv-brand { font-size: 2rem; font-weight: 800; color: white; letter-spacing: 2px; }
@@ -57,6 +56,7 @@
         .cal-day:hover { background: #3b82f6; color: white; }
         .d-present { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid #22c55e; }
         .d-absent { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+        .d-work { border-bottom: 2px solid #f59e0b; }
         
         .fab-btn { position: fixed; bottom: 2rem; right: 2rem; width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; font-size: 24px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(37, 99, 235, 0.6); z-index: 40; cursor: pointer; transition: transform 0.2s; }
         .fab-btn:hover { transform: scale(1.1); }
@@ -82,12 +82,12 @@
 
         let DB = {};
         function loadDB() {
-            const saved = localStorage.getItem('AutoGearPro_V12_Final');
+            const saved = localStorage.getItem('AutoGearPro_V13_Mobile');
             DB = saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(DEFAULT_DB));
             if(!DB.reminders) DB.reminders = [];
             saveDB();
         }
-        function saveDB() { localStorage.setItem('AutoGearPro_V12_Final', JSON.stringify(DB)); }
+        function saveDB() { localStorage.setItem('AutoGearPro_V13_Mobile', JSON.stringify(DB)); }
 
         const App = {
             addCustomer(name, mobile, car, items) {
@@ -115,12 +115,11 @@
                 saveDB();
             },
             addStaff(name, role, pass) {
-                // Store password as STRING to avoid login issues
                 DB.staff.push({ 
                     id: Date.now(), 
                     name, 
                     role, 
-                    password: String(pass).trim(), // Force String
+                    password: String(pass).trim(),
                     attendance: "Present", 
                     attendanceHistory: {}, 
                     stockHistory: [] 
@@ -178,20 +177,19 @@
                 <button onclick="login('owner')" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold text-lg shadow-lg transition transform active:scale-95">Owner Login</button>
                 <button onclick="login('staff')" class="w-full bg-slate-700 hover:bg-slate-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg transition transform active:scale-95">Staff Login</button>
             </div>
-            <p class="mt-4 text-xs text-gray-500">Note: Data is saved on this device only.</p>
         </div>
     </div>
 
     <div id="view-owner" class="hidden min-h-screen flex flex-col md:flex-row bg-slate-900 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]">
         
         <div class="md:hidden flex justify-between items-center p-4 bg-slate-900 border-b border-gray-800 sticky top-0 z-40">
-            <div class="text-xl font-bold italic text-white">Auto<span class="text-blue-500">Gear</span></div>
+            <div onclick="nav('dash')" class="text-xl font-bold italic text-white cursor-pointer">Auto<span class="text-blue-500">Gear</span></div>
             <button onclick="document.getElementById('mobile-nav').classList.toggle('hidden')" class="text-white"><i class="fa-solid fa-bars text-2xl"></i></button>
         </div>
 
-        <div id="mobile-nav" class="hidden md:block w-full md:w-64 bg-slate-900 border-r border-gray-800 flex-col md:h-screen sticky top-0 z-30 fixed md:relative absolute left-0 top-14 md:top-0">
-            <div class="p-6 hidden md:block text-xl font-bold italic text-white">Auto<span class="text-blue-500">Gear</span></div>
-            <nav class="flex-1 p-4 space-y-3 bg-slate-900 h-screen md:h-auto">
+        <div id="mobile-nav" class="hidden md:block w-full md:w-64 bg-slate-900 border-r border-gray-800 flex-col md:h-screen sticky top-0 z-30 fixed md:relative absolute left-0 top-14 md:top-0 h-screen">
+            <div onclick="nav('dash')" class="p-6 hidden md:block text-xl font-bold italic text-white cursor-pointer hover:opacity-80 transition">Auto<span class="text-blue-500">Gear</span></div>
+            <nav class="flex-1 p-4 space-y-3 bg-slate-900 h-full">
                 <button onclick="nav('dash')" class="w-full text-left p-3 text-gray-300 hover:bg-slate-800 rounded-lg"><i class="fa-solid fa-chart-pie w-6 mr-2"></i> Dashboard</button>
                 <button onclick="nav('customers')" class="w-full text-left p-3 text-gray-300 hover:bg-slate-800 rounded-lg"><i class="fa-solid fa-users w-6 mr-2"></i> Customers</button>
                 <button onclick="nav('inventory')" class="w-full text-left p-3 text-gray-300 hover:bg-slate-800 rounded-lg"><i class="fa-solid fa-boxes-stacked w-6 mr-2"></i> Inventory</button>
@@ -216,9 +214,9 @@
                     <div class="flex items-center gap-2 mb-4"><i class="fa-solid fa-robot text-purple-400 text-2xl"></i><h3 class="text-xl font-bold text-purple-100">AI Assistant</h3></div>
                     <div class="flex gap-2 mb-2">
                         <input id="ai-query" type="text" placeholder="Ask anything..." class="flex-1 bg-slate-900 border border-gray-700 rounded p-3 text-white">
-                        <button onclick="askAI()" class="bg-purple-600 px-6 rounded text-white"><i class="fa-solid fa-paper-plane"></i></button>
+                        <button onclick="askAI()" class="bg-purple-600 px-6 rounded text-white hover:bg-purple-500"><i class="fa-solid fa-paper-plane"></i></button>
                     </div>
-                    <p id="ai-response" class="text-sm text-gray-400 pl-2">"Ask about sales, staff or stock."</p>
+                    <p id="ai-response" class="text-sm text-gray-400 pl-2">"I know everything about your system."</p>
                 </div>
                 <div class="glass p-1 rounded-2xl">
                     <div class="notepad-area p-6 rounded-xl flex flex-col">
@@ -279,8 +277,7 @@
             
             <div class="glass p-4 rounded-2xl">
                 <h3 class="text-white font-bold mb-3 flex items-center gap-2"><i class="fa-solid fa-list-check text-orange-400"></i> My Today's Work</h3>
-                <ul id="staff-today-list" class="space-y-2 text-sm max-h-40 overflow-y-auto">
-                    </ul>
+                <ul id="staff-today-list" class="space-y-2 text-sm max-h-40 overflow-y-auto"></ul>
             </div>
 
             <div class="glass p-4 rounded-2xl">
@@ -364,7 +361,13 @@
                 }
             }
         }
-        function nav(t) { ['dash','customers','inventory','staff'].forEach(id=>document.getElementById('tab-'+id).classList.add('hidden')); document.getElementById('tab-'+t).classList.remove('hidden'); if(t==='customers') renderCustomers(); if(t==='inventory') renderInventory(); if(t==='staff') renderStaff(); }
+        function nav(t) { 
+            ['dash','customers','inventory','staff'].forEach(id=>document.getElementById('tab-'+id).classList.add('hidden')); 
+            document.getElementById('tab-'+t).classList.remove('hidden'); 
+            // Close Mobile Menu
+            if(window.innerWidth < 768) document.getElementById('mobile-nav').classList.add('hidden');
+            if(t==='customers') renderCustomers(); if(t==='inventory') renderInventory(); if(t==='staff') renderStaff(); 
+        }
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
         // --- NOTEPAD & REMINDER ---
